@@ -12,7 +12,6 @@ export default function LoginPage() {
     password: "",
   });
 
-  // 👉 This is just for user clarity
   const [accessType, setAccessType] = useState("user");
 
   const handleChange = (e) => {
@@ -52,42 +51,57 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="p-8 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Login</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full border p-2"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full border p-2"
-          onChange={handleChange}
-          required
-        />
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-100 p-4">
+      <div className="bg-white/50 backdrop-blur-lg border border-gray-200 rounded-2xl p-8 shadow-lg w-full max-w-md">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+          🔒 Login
+        </h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onChange={handleChange}
+            required
+          />
 
-        <select
-          value={accessType}
-          onChange={(e) => setAccessType(e.target.value)}
-          className="w-full border p-2"
-        >
-          <option value="user">I am logging in as: User Access</option>
-          <option value="admin">I am logging in as: Admin Access</option>
-        </select>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onChange={handleChange}
+            required
+          />
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2"
-        >
-          Login
-        </button>
-      </form>
+          <select
+            value={accessType}
+            onChange={(e) => setAccessType(e.target.value)}
+            className="w-full border border-gray-300 rounded px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="user">👤 Logging in as: User</option>
+            <option value="admin">🛡️ Logging in as: Admin</option>
+          </select>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-full shadow transition duration-300"
+          >
+            Login
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-gray-700 mt-4">
+          Don’t have an account?{" "}
+          <span
+            onClick={() => router.push("/register")}
+            className="text-blue-600 hover:underline cursor-pointer font-semibold"
+          >
+            Click here to register
+          </span>
+        </p>
+      </div>
     </main>
   );
 }

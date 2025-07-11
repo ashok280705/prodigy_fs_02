@@ -1,7 +1,9 @@
 'use client';
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-white via-blue-50 to-blue-100 px-4">
       <div className="text-center max-w-2xl">
@@ -13,20 +15,10 @@ export default function Home() {
         </p>
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow-md transition duration-300"
-          onClick={() => window.location.href = "/login"}
+          onClick={() => router.push("/login")}
         >
-          Get Started
+          Login
         </button>
-      </div>
-
-      <div className="mt-12 w-full max-w-md">
-        <Image
-          src="/teamwork.svg" // 👈 Place a nice SVG in your `public/` folder or use any link
-          alt="Teamwork Illustration"
-          width={500}
-          height={500}
-          className="w-full h-auto"
-        />
       </div>
     </main>
   );
