@@ -2,11 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const router = useRouter();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  // 👉 This is just for user clarity
+  const [accessType, setAccessType] = useState("user");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -14,7 +21,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -25,10 +31,23 @@ export default function LoginPage() {
     const data = await res.json();
 
     if (res.ok) {
-      localStorage.setItem("token", data.token);
-      router.push("/dashboard");
+      toast.success("Login successful!");
+
+      if (data.user.role === "admin") {
+        if (accessType !== "admin") {
+          toast.error("This is an admin account! Use Admin Access type.");
+          return;
+        }
+        router.push("/dashboard");
+      } else {
+        if (accessType !== "user") {
+          toast.error("This is a normal user account! Use User Access type.");
+          return;
+        }
+        router.push("/profile");
+      }
     } else {
-      setError(data.msg || "Login failed");
+      toast.error(data.msg || "Invalid credentials.");
     }
   };
 
@@ -52,8 +71,20 @@ export default function LoginPage() {
           onChange={handleChange}
           required
         />
-        {error && <p className="text-red-600">{error}</p>}
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
+
+        <select
+          value={accessType}
+          onChange={(e) => setAccessType(e.target.value)}
+          className="w-full border p-2"
+        >
+          <option value="user">I am logging in as: User Access</option>
+          <option value="admin">I am logging in as: Admin Access</option>
+        </select>
+
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2"
+        >
           Login
         </button>
       </form>
