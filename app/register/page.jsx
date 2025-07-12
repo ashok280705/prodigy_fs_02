@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -15,12 +15,61 @@ export default function RegisterPage() {
     role: "user",
   });
 
+  const [secret, setSecret] = useState("");
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+
+  useEffect(() => {
+    let timer;
+    if (isLocked && secondsLeft > 0) {
+      timer = setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setIsLocked(false);
+            setFailedAttempts(0);
+            toast.success("You can try again now.");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => clearInterval(timer);
+  }, [isLocked, secondsLeft]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isLocked) {
+      toast.error(`Too many failed attempts. Please wait ${secondsLeft}s.`);
+      return;
+    }
+
+    if (form.role === "admin") {
+      if (secret !== "123") {
+        toast.error("Invalid admin secret code!");
+
+        setFailedAttempts((prev) => {
+          const newCount = prev + 1;
+          if (newCount >= 3) {
+            setIsLocked(true);
+            setSecondsLeft(30); // or 120 for 2 min in prod
+            toast.error("You are locked out for 30 seconds.");
+          }
+          return newCount;
+        });
+
+        return; // Block API call
+      }
+    }
 
     const res = await fetch("/api/auth/register", {
       method: "POST",
@@ -91,11 +140,29 @@ export default function RegisterPage() {
             <option value="admin">🛡️ Register as Admin</option>
           </select>
 
+          {form.role === "admin" && (
+            <input
+              type="text"
+              placeholder="Enter Admin Secret"
+              value={secret}
+              onChange={(e) => setSecret(e.target.value)}
+              className="w-full border border-red-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-400"
+              required
+            />
+          )}
+
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-3 rounded-full shadow transition duration-300"
+            disabled={isLocked}
+            className={`w-full ${
+              isLocked
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            } text-white font-semibold px-4 py-3 rounded-full shadow transition duration-300`}
           >
-            Register
+            {isLocked
+              ? `Locked (${secondsLeft}s left)`
+              : "Register"}
           </button>
         </form>
 
